@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Class Booking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label, input, button {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .lists {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .list {
+            margin: 20px 0;
+            border: 1px solid #000;
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        @media (max-width: 600px) {
+            .list {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Gym Class Booking System</h1>
+
+    <h2>Book a Class</h2>
+    <form id="bookForm">
+        <label for="classType">Class Type:</label>
+        <input type="text" id="classType" name="classType" required>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Book</button>
+    </form>
+
+    <h2>Cancel a Booking</h2>
+    <form id="cancelForm">
+        <label for="cancelClassType">Class Type:</label>
+        <input type="text" id="cancelClassType" name="classType" required>
+        <label for="cancelName">Name:</label>
+        <input type="text" id="cancelName" name="name" required>
+        <button type="submit">Cancel</button>
+    </form>
+
+    <h2>Class Lists</h2>
+    <form id="viewListsForm">
+        <label for="viewClassType">Class Type:</label>
+        <input type="text" id="viewClassType" name="viewClassType" required>
+        <button type="submit">View Lists</button>
+    </form>
+
+    <div class="lists">
+        <div class="list" id="classInfo">
+            <h3>Class Info</h3>
+            <p id="capacity"></p>
+            <p id="availableSlots"></p>
+        </div>
+        <div class="list" id="bookingList">
+            <h3>Booking List</h3>
+            <ul id="bookedUsers"></ul>
+        </div>
+        <div class="list" id="waitingList">
+            <h3>Waiting List</h3>
+            <ul id="waitingUsers"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('bookForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const classType = document.getElementById('classType').value;
+            const name = document.getElementById('name').value;
+
+            fetch(`/book?classType=${classType}&name=${name}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.messageTxt); // Show message
+                document.getElementById('bookForm').reset(); // Reset the form
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('cancelForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const classType = document.getElementById('cancelClassType').value;
+            const name = document.getElementById('cancelName').value;
+
+            fetch(`/cancel?classType=${classType}&name=${name}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.messageTxt); // Show message
+                document.getElementById('cancelForm').reset(); // Reset the form
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('viewListsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const classType = document.getElementById('viewClassType').value;
+
+            fetch(`/getLists?classType=${classType}`)
+            .then(response => response.json())
+            .then(data => {
+                const bookedUsers = document.getElementById('bookedUsers');
+                const waitingUsers = document.getElementById('waitingUsers');
+                const capacity = document.getElementById('capacity');
+                const availableSlots = document.getElementById('availableSlots');
+
+                bookedUsers.innerHTML = '';
+                waitingUsers.innerHTML = '';
+
+                data.booked.forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = user;
+                    bookedUsers.appendChild(li);
+                });
+
+                data.waiting.forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = user;
+                    waitingUsers.appendChild(li);
+                });
+
+                capacity.textContent = `Capacity: ${data.capacity}`;
+                availableSlots.textContent = `Available Slots: ${data.availableSlots}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

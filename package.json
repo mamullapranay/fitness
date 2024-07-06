@@ -1,0 +1,14 @@
+{
+  "name": "gym-class-booking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/app.js",
+  "scripts": {
+      "start": "node server/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+      "express": "^4.17.1"
+  }
+}
